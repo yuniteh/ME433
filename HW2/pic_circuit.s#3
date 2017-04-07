@@ -13466,7 +13466,7 @@ Source: www.kingbright.com</description>
 <part name="+3V1" library="pic_circuit" deviceset="+3V3" device=""/>
 <part name="C4" library="pic_circuit" deviceset="C-US" device="025-025X050" value="0.1uF"/>
 <part name="LED1" library="pic_circuit" deviceset="LED" device="3MM" value="RED"/>
-<part name="LED2" library="pic_circuit" deviceset="LED" device="3MM" value="GREEN"/>
+<part name="LED2" library="pic_circuit" deviceset="LED" device="3MM" value="GRN"/>
 <part name="R2" library="pic_circuit" deviceset="R-US_" device="0207/10" value="330"/>
 <part name="GND2" library="pic_circuit" deviceset="GND" device=""/>
 <part name="+3V2" library="pic_circuit" deviceset="+3V3" device=""/>

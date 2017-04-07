@@ -13420,8 +13420,8 @@ Source: www.kingbright.com</description>
 <part name="C5" library="pic_circuit" deviceset="C-US" device="025-025X050" value="0.1uF"/>
 <part name="GND8" library="pic_circuit" deviceset="GND" device=""/>
 <part name="+3V4" library="pic_circuit" deviceset="+3V3" device=""/>
-<part name="U$6" library="pic_circuit" deviceset="PUSH" device=""/>
-<part name="U$7" library="pic_circuit" deviceset="PUSH" device=""/>
+<part name="U$6" library="pic_circuit" deviceset="PUSH" device="" value="USER"/>
+<part name="U$7" library="pic_circuit" deviceset="PUSH" device="" value="RESET"/>
 <part name="+3V5" library="pic_circuit" deviceset="+3V3" device=""/>
 <part name="GND9" library="pic_circuit" deviceset="GND" device=""/>
 <part name="C6" library="pic_circuit" deviceset="C-US" device="025-025X050" value="0.1uF"/>

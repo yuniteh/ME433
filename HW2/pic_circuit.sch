@@ -13498,10 +13498,10 @@ Source: www.kingbright.com</description>
 <part name="U$7" library="pic_circuit" deviceset="CONN_08" device=""/>
 <part name="GND12" library="pic_circuit" deviceset="GND" device=""/>
 <part name="GND13" library="pic_circuit" deviceset="GND" device=""/>
-<part name="P+1" library="pic_circuit" deviceset="+5V" device=""/>
-<part name="+3V8" library="pic_circuit" deviceset="+3V3" device=""/>
 <part name="U$2" library="pic_circuit" deviceset="MCP1702" device=""/>
 <part name="U$5" library="pic_circuit" deviceset="SLIDE" device=""/>
+<part name="P+1" library="pic_circuit" deviceset="+5V" device=""/>
+<part name="+3V8" library="pic_circuit" deviceset="+3V3" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -13550,10 +13550,10 @@ Source: www.kingbright.com</description>
 <instance part="U$7" gate="G$1" x="63.5" y="-10.16"/>
 <instance part="GND12" gate="1" x="73.66" y="-20.32"/>
 <instance part="GND13" gate="1" x="73.66" y="10.16"/>
-<instance part="P+1" gate="1" x="81.28" y="17.78"/>
-<instance part="+3V8" gate="G$1" x="81.28" y="-12.7"/>
 <instance part="U$2" gate="G$1" x="0" y="-55.88"/>
 <instance part="U$5" gate="G$1" x="-40.64" y="-58.42"/>
+<instance part="P+1" gate="1" x="81.28" y="-12.7"/>
+<instance part="+3V8" gate="G$1" x="81.28" y="17.78"/>
 </instances>
 <busses>
 </busses>
@@ -13720,8 +13720,8 @@ Source: www.kingbright.com</description>
 <wire x1="101.6" y1="-55.88" x2="101.6" y2="-53.34" width="0.1524" layer="91"/>
 </segment>
 <segment>
-<pinref part="U$7" gate="G$1" pin="2"/>
-<wire x1="68.58" y1="-15.24" x2="81.28" y2="-15.24" width="0.1524" layer="91"/>
+<pinref part="U$6" gate="G$1" pin="2"/>
+<wire x1="68.58" y1="15.24" x2="81.28" y2="15.24" width="0.1524" layer="91"/>
 <pinref part="+3V8" gate="G$1" pin="+3V3"/>
 </segment>
 </net>
@@ -13745,8 +13745,8 @@ Source: www.kingbright.com</description>
 <wire x1="20.32" y1="-33.02" x2="25.4" y2="-33.02" width="0.1524" layer="91"/>
 </segment>
 <segment>
-<pinref part="U$6" gate="G$1" pin="2"/>
-<wire x1="68.58" y1="15.24" x2="81.28" y2="15.24" width="0.1524" layer="91"/>
+<pinref part="U$7" gate="G$1" pin="2"/>
+<wire x1="68.58" y1="-15.24" x2="81.28" y2="-15.24" width="0.1524" layer="91"/>
 <pinref part="P+1" gate="1" pin="+5V"/>
 </segment>
 </net>
