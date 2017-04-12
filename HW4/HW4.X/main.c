@@ -1,5 +1,6 @@
-#include<xc.h>           // processor SFR definitions
-#include<sys/attribs.h>  // __ISR macro
+#include <xc.h>           // processor SFR definitions
+#include <sys/attribs.h>  // __ISR macro
+#include <math.h>
 
 // DEVCFG0
 #pragma config DEBUG = OFF // no debugging
@@ -36,6 +37,14 @@
 #pragma config FUSBIDIO = ON // USB pins controlled by USB module
 #pragma config FVBUSONIO = ON // USB BUSON controlled by USB module
 
+#define TRI_N 200
+#define SIN_N 100
+
+static volatile char triangle[TRI_N];
+static volatile char sine[SIN_N];
+
+void make_triangle();
+void make_sine();
 
 int main() {
 
@@ -56,26 +65,55 @@ int main() {
     // do your TRIS and LAT commands here
     TRISBbits.TRISB4 = 1;
     TRISAbits.TRISA4 = 0;
-    
-    // assign pin functions
-    RPA0Rbits.RPA0R = 0b0011;
-    RPA1Rbits.RPA1R = 0b0011;
-    SDI1Rbits.SDI1R = 0b0100;
+    init_spi();
     __builtin_enable_interrupts();
 
-    while(1) {
-        unsigned int elapsed;
+    set_voltage(1, 128);
+    set_voltage(0, 0);
+
+    int tri_i = 0;
+    int sin_i = 0;
+    make_triangle();
+    make_sine();
+
+    while (1) {
         _CP0_SET_COUNT(0);
-        while(_CP0_GET_COUNT() < 12000) {
-            LATAbits.LATA4 = 1;
+        while (_CP0_GET_COUNT() < 24000) {
+            set_voltage(1, triangle[tri_i]);
+            set_voltage(0, sine[sin_i]);
         }
-        while(_CP0_GET_COUNT() < 24000) {
-            LATAbits.LATA4 = 0;
+        ++tri_i;
+        ++sin_i;
+        if (tri_i > TRI_N) {
+            tri_i = 0;
         }
-        while(!PORTBbits.RB4) {
-            ;
+        if (sin_i > SIN_N) {
+            sin_i = 0;
         }
-	    // use _CP0_SET_COUNT(0) and _CP0_GET_COUNT() to test the PIC timing
-		  // remember the core timer runs at half the sysclk
+
+        // use _CP0_SET_COUNT(0) and _CP0_GET_COUNT() to test the PIC timing
+        // remember the core timer runs at half the sysclk
+    }
+}
+
+void make_triangle() {
+    int i = 0;
+    float temp_triangle[TRI_N];
+    for (i = 0; i < TRI_N; ++i) {
+        temp_triangle[i] = i * 1.275;
+    }
+    for (i = 0; i < TRI_N; ++i) {
+        triangle[i] = (char) temp_triangle[i];
+    }
+}
+
+void make_sine() {
+    int i = 0;
+    float temp_sine[SIN_N];
+    for (i = 0; i < SIN_N; ++i) {
+        temp_sine[i] = 127 * sin(2*3.1415*.01*i) + 128;
+    }
+    for (i = 0; i < SIN_N; ++i) {
+        sine[i] = (char) temp_sine[i];
     }
 }
