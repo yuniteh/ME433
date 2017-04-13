@@ -37,15 +37,6 @@
 #pragma config FUSBIDIO = ON // USB pins controlled by USB module
 #pragma config FVBUSONIO = ON // USB BUSON controlled by USB module
 
-#define TRI_N 200
-#define SIN_N 100
-
-static volatile char triangle[TRI_N];
-static volatile char sine[SIN_N];
-
-void make_triangle();
-void make_sine();
-
 int main() {
 
     __builtin_disable_interrupts();
@@ -65,18 +56,16 @@ int main() {
     // do your TRIS and LAT commands here
     TRISBbits.TRISB4 = 1;
     TRISAbits.TRISA4 = 0;
-    init_spi();
+    
+    ANSELBbits.ANSB2 = 0;
+    ANSELBbits.ANSB3 = 0;
+    init_exp();
     __builtin_enable_interrupts();
 
-
     while (1) {
-        _CP0_SET_COUNT(0);
-        while (_CP0_GET_COUNT() < 24000) {
-            set_voltage(1, triangle[tri_i]);
-            set_voltage(0, sine[sin_i]);
+        
+        while (get_exp() == 0x80) {
+            set_exp(0,1);
         }
-
-        // use _CP0_SET_COUNT(0) and _CP0_GET_COUNT() to test the PIC timing
-        // remember the core timer runs at half the sysclk
     }
 }
