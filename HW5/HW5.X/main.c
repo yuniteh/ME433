@@ -64,9 +64,9 @@ int main() {
 
     while (1) {
         if (get_exp() & 1<<7) {
-            set_exp(0, 0);
-        } else {
             set_exp(0, 1);
+        } else {
+            set_exp(0, 0);
         }
     }
 }
