@@ -63,9 +63,9 @@ int main() {
     __builtin_enable_interrupts();
 
     while (1) {
-        
-        while (get_exp() == 0x80) {
-            set_exp(0,1);
+        set_exp(0,0);
+        while (get_exp()>>7 == 1) {
+           set_exp(0,1); 
         }
     }
 }
