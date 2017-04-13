@@ -56,16 +56,17 @@ int main() {
     // do your TRIS and LAT commands here
     TRISBbits.TRISB4 = 1;
     TRISAbits.TRISA4 = 0;
-    
+
     ANSELBbits.ANSB2 = 0;
     ANSELBbits.ANSB3 = 0;
     init_exp();
     __builtin_enable_interrupts();
 
     while (1) {
-        set_exp(0,0);
-        while (get_exp()>>7 == 1) {
-           set_exp(0,1); 
+        if (get_exp() & 1<<7) {
+            set_exp(0, 0);
+        } else {
+            set_exp(0, 1);
         }
     }
 }

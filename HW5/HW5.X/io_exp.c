@@ -16,7 +16,7 @@ void init_exp() {
     i2c_master_start();
     i2c_master_send(ADD);
     i2c_master_send(0x09);
-    i2c_master_send(0xFF);
+    i2c_master_send(0x00);
     i2c_master_stop();
 }
 
