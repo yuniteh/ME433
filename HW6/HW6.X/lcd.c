@@ -203,17 +203,39 @@ void LCD_clearScreen(unsigned short color) {
 }
 
 void LCD_write(unsigned short x, unsigned short y, unsigned char c) {
-    c = c - 0x20;
-    char pix;
-    int i, j;
-    for (i = 0; i < 5; i++) {
-        pix = ASCII[c][i];
-        for (j = 7; j > -1; j--) {
-            if ((pix >> j) & 1) {
-                LCD_drawPixel(x + i, y + j, BLUE);
-            } else {
-                LCD_drawPixel(x + i, y + j, WHITE);
+    if (x < 123 && y < 121 && x > -1 && y > -1) {
+        c = c - 0x20;
+        char pix;
+        int i, j;
+        for (i = 0; i < 5; i++) {
+            pix = ASCII[c][i];
+            for (j = 7; j > -1; j--) {
+                if ((pix >> j) & 1) {
+                    LCD_drawPixel(x + i, y + j, BLUE);
+                } else {
+                    LCD_drawPixel(x + i, y + j, WHITE);
+                }
             }
         }
+    }
+}
+
+void LCD_writeString(unsigned short x, unsigned short y, char* string) {
+    int i = 0;
+    while (string[i]) {
+        LCD_write(x + (i * 6), y, string[i]);
+        i++;
+    }
+}
+
+void LCD_bar(unsigned short x, unsigned short y, int length) {
+    int i;
+    for (i = 0; i < length; i++) {
+        LCD_drawPixel(x + i, y, GREEN);
+        LCD_drawPixel(x + i, y + 1, GREEN);
+    }
+    for (i = length; i < 100; i++) {
+        LCD_drawPixel(x + i, y, WHITE);
+        LCD_drawPixel(x + i, y + 1, WHITE);
     }
 }

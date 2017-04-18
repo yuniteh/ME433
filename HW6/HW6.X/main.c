@@ -1,5 +1,6 @@
 #include <xc.h>           // processor SFR definitions
 #include <sys/attribs.h>  // __ISR macro
+#include <stdio.h>
 #include "lcd.h"
 
 // DEVCFG0
@@ -68,10 +69,22 @@ int main() {
     SPI1_init();
     LCD_init();
     __builtin_enable_interrupts();
+
     LCD_clearScreen(WHITE);
-    LCD_write(28,32,'H');
+    char str[25];
+    int count = 0;
+
     while (1) {
-        ;
+        _CP0_SET_COUNT(0);
+        while (_CP0_GET_COUNT() < 4800000) {
+            sprintf(str, "hello world %d  ", count);
+            LCD_writeString(23, 32, str);
+            LCD_bar(14, 40, count);
+        }
+        count++;
+        if (count > 100) {
+            count = 0;
+        }
         // use _CP0_SET_COUNT(0) and _CP0_GET_COUNT() to test the PIC timing
         // remember the core timer runs at half the sysclk
     }
