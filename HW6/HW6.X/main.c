@@ -73,14 +73,21 @@ int main() {
     LCD_clearScreen(WHITE);
     char str[25];
     int count = 0;
+    int frames = 0;
+    float fps;
 
     while (1) {
         _CP0_SET_COUNT(0);
         while (_CP0_GET_COUNT() < 4800000) {
             sprintf(str, "hello world %d  ", count);
-            LCD_writeString(23, 32, str);
+            LCD_writeString(28, 32, str);
             LCD_bar(14, 40, count);
+            frames++;
         }
+        fps = frames/.2;
+        sprintf(str, "%4.2f  ", fps);
+        LCD_writeString(100, 100, str);
+        frames = 0;
         count++;
         if (count > 100) {
             count = 0;
