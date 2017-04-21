@@ -14,7 +14,6 @@
 // B8 is turned into SDI1 but is not used or connected to anything
 
 #include <xc.h>
-#include <stdlib.h>
 #include "lcd.h"
 
 void SPI1_init() {
@@ -229,14 +228,64 @@ void LCD_writeString(unsigned short x, unsigned short y, char* string) {
     }
 }
 
-void LCD_bar(unsigned short x, unsigned short y, int length) {
+void LCD_barX(unsigned short x, unsigned short y, int length) {
     int i;
-    for (i = 0; i < length; i++) {
-        LCD_drawPixel(x + i, y, GREEN);
-        LCD_drawPixel(x + i, y + 1, GREEN);
+    if (length > 0) {
+        for (i = 0; i < length; i++) {
+            LCD_drawPixel(x - i, y, GREEN);
+            LCD_drawPixel(x - i, y + 1, GREEN);
+        }
+        for (i = length; i < 100; i++) {
+            LCD_drawPixel(x - i, y, WHITE);
+            LCD_drawPixel(x - i, y + 1, WHITE);
+        }
+        for (i = 0; i > -100; i--) {
+            LCD_drawPixel(x - i, y, WHITE);
+            LCD_drawPixel(x - i, y + 1, WHITE);
+        }
+    } else {
+        for (i = 0; i > length; i--) {
+            LCD_drawPixel(x - i, y, GREEN);
+            LCD_drawPixel(x - i, y + 1, GREEN);
+        }
+        for (i = length; i > -100; i--) {
+            LCD_drawPixel(x - i, y, WHITE);
+            LCD_drawPixel(x - i, y + 1, WHITE);
+        }
+        for (i = 0; i < 100; i++) {
+            LCD_drawPixel(x - i, y, WHITE);
+            LCD_drawPixel(x - i, y + 1, WHITE);
+        }
     }
-    for (i = length; i < 100; i++) {
-        LCD_drawPixel(x + i, y, WHITE);
-        LCD_drawPixel(x + i, y + 1, WHITE);
+}
+
+void LCD_barY(unsigned short x, unsigned short y, int length) {
+    int i;
+    if (length > 0) {
+        for (i = 0; i < length; i++) {
+            LCD_drawPixel(x, y - i, RED);
+            LCD_drawPixel(x + 1, y - i, RED);
+        }
+        for (i = length; i < 100; i++) {
+            LCD_drawPixel(x, y - i, WHITE);
+            LCD_drawPixel(x + 1, y - i, WHITE);
+        }
+        for (i = 0; i > -100; i--) {
+            LCD_drawPixel(x, y - i, WHITE);
+            LCD_drawPixel(x + 1, y - i, WHITE);
+        }
+    } else {
+        for (i = 0; i > length; i--) {
+            LCD_drawPixel(x, y - i, RED);
+            LCD_drawPixel(x + 1, y - i, RED);
+        }
+        for (i = length; i > -100; i--) {
+            LCD_drawPixel(x, y - i, WHITE);
+            LCD_drawPixel(x + 1, y - i, WHITE);
+        }
+        for (i = 0; i < 100; i++) {
+            LCD_drawPixel(x, y - i, WHITE);
+            LCD_drawPixel(x + 1, y - i, WHITE);
+        }
     }
 }
