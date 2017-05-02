@@ -433,6 +433,21 @@ void APP_Tasks(void) {
             break;
 
         case APP_STATE_WAIT_FOR_READ_COMPLETE:
+        case APP_STATE_CHECK_TIMER:
+
+            if (APP_StateReset()) {
+                break;
+            }
+
+            /* Check if a character was received or a switch was pressed.
+             * The isReadComplete flag gets updated in the CDC event handler. */
+
+            if (appData.isReadComplete) {
+                appData.state = APP_STATE_SCHEDULE_WRITE;
+            }
+
+            break;
+
         case APP_STATE_SCHEDULE_WRITE:
 
             if (APP_StateReset()) {
@@ -451,21 +466,6 @@ void APP_Tasks(void) {
                 }
             }
             break;
-        case APP_STATE_CHECK_TIMER:
-
-            if (APP_StateReset()) {
-                break;
-            }
-
-            /* Check if a character was received or a switch was pressed.
-             * The isReadComplete flag gets updated in the CDC event handler. */
-
-            if (appData.isReadComplete) {
-                appData.state = APP_STATE_SCHEDULE_WRITE;
-            }
-
-            break;
-
 
         case APP_STATE_PRINT_IMU:
             if (APP_StateReset()) {
