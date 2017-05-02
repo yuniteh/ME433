@@ -60,8 +60,12 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 
 uint8_t APP_MAKE_BUFFER_DMA_READY dataOut[APP_READ_BUFFER_SIZE];
 uint8_t APP_MAKE_BUFFER_DMA_READY readBuffer[APP_READ_BUFFER_SIZE];
-int len, i = 0;
-int startTime = 0;
+int len, startTime = 0;
+int i = 1;
+char data[12];
+short out[6];
+float acc[3];
+float gyro[3];
 
 // *****************************************************************************
 /* Application Data
@@ -297,6 +301,36 @@ bool APP_StateReset(void) {
  */
 
 void APP_Initialize(void) {
+
+    __builtin_disable_interrupts();
+
+    // set the CP0 CONFIG register to indicate that kseg0 is cacheable (0x3)
+    __builtin_mtc0(_CP0_CONFIG, _CP0_CONFIG_SELECT, 0xa4210583);
+
+    // 0 data RAM access wait states
+    BMXCONbits.BMXWSDRM = 0x0;
+
+    // enable multi vector interrupts
+    INTCONbits.MVEC = 0x1;
+
+    // disable JTAG to get pins back
+    DDPCONbits.JTAGEN = 0;
+
+    // do your TRIS and LAT commands here
+    TRISBbits.TRISB4 = 1;
+    TRISAbits.TRISA4 = 0;
+
+    ANSELBbits.ANSB2 = 0;
+    ANSELBbits.ANSB3 = 0;
+    init_imu();
+    SPI1_init();
+    LCD_init();
+    __builtin_enable_interrupts();
+
+    LCD_clearScreen(BLUE);
+    //    LCD_barX(63, 63, 20);
+    //    LCD_barY(63, 63, 20);
+
     /* Place the App state machine in its initial state. */
     appData.state = APP_STATE_INIT;
 
@@ -399,6 +433,24 @@ void APP_Tasks(void) {
             break;
 
         case APP_STATE_WAIT_FOR_READ_COMPLETE:
+        case APP_STATE_SCHEDULE_WRITE:
+
+            if (APP_StateReset()) {
+                break;
+            }
+
+            /* Setup the write */
+
+            appData.state = APP_STATE_SCHEDULE_READ;
+
+            if (appData.isReadComplete) {
+                if (*appData.readBuffer == 114) { // check if typed r
+                    startTime = _CP0_GET_COUNT();
+                    i = 0;
+                    appData.state = APP_STATE_PRINT_IMU;
+                }
+            }
+            break;
         case APP_STATE_CHECK_TIMER:
 
             if (APP_StateReset()) {
@@ -408,37 +460,37 @@ void APP_Tasks(void) {
             /* Check if a character was received or a switch was pressed.
              * The isReadComplete flag gets updated in the CDC event handler. */
 
-            if (appData.isReadComplete || _CP0_GET_COUNT() - startTime > (48000000 / 2 / 5)) {
+            if (appData.isReadComplete) {
                 appData.state = APP_STATE_SCHEDULE_WRITE;
             }
 
             break;
 
 
-        case APP_STATE_SCHEDULE_WRITE:
-
+        case APP_STATE_PRINT_IMU:
             if (APP_StateReset()) {
                 break;
             }
-
-            /* Setup the write */
-
             appData.writeTransferHandle = USB_DEVICE_CDC_TRANSFER_HANDLE_INVALID;
             appData.isWriteComplete = false;
-            appData.state = APP_STATE_WAIT_FOR_WRITE_COMPLETE;
 
-            len = sprintf(dataOut, "%d\r\n", i);
-            i++;
-            if (appData.isReadComplete) {
-                USB_DEVICE_CDC_Write(USB_DEVICE_CDC_INDEX_0,
-                        &appData.writeTransferHandle,
-                        appData.readBuffer, 1,
-                        USB_DEVICE_CDC_TRANSFER_FLAGS_DATA_COMPLETE);
-            } else {
+            if (_CP0_GET_COUNT() - startTime > (48000000 / 2 / 100)) {
+                i2c_read_multiple(ADD, 0x22, data, 12);
+                int j;
+                for (j = 0; j < 12; j += 2) {
+                    out[j / 2] = (short) data[j + 1] << 8;
+                }
+                for (j = 0; j < 3; j++) {
+                    acc[j] = out[j + 3] * .00061 * 4;
+                    gyro[j] = out[j] * .035;
+                }
+                //                len = sprintf(dataOut, "%d \r\n", i);
+                len = sprintf(dataOut, "%d %4.2f %4.2f %4.2f %5.2f %5.2f %5.2f\r\n", i, acc[0], acc[1], acc[2], gyro[0], gyro[1], gyro[2]);
+                i++;
                 USB_DEVICE_CDC_Write(USB_DEVICE_CDC_INDEX_0,
                         &appData.writeTransferHandle, dataOut, len,
                         USB_DEVICE_CDC_TRANSFER_FLAGS_DATA_COMPLETE);
-                startTime = _CP0_GET_COUNT();
+                appData.state = APP_STATE_WAIT_FOR_WRITE_COMPLETE;
             }
             break;
 
@@ -452,7 +504,13 @@ void APP_Tasks(void) {
              * flag gets updated in the CDC event handler */
 
             if (appData.isWriteComplete == true) {
-                appData.state = APP_STATE_SCHEDULE_READ;
+                if (i == 100) {
+                    appData.state = APP_STATE_SCHEDULE_READ;
+                    i = 1;
+                } else {
+                    startTime = _CP0_GET_COUNT();
+                    appData.state = APP_STATE_PRINT_IMU;
+                }
             }
 
             break;
