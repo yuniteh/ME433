@@ -473,9 +473,9 @@ void APP_Tasks(void) {
                 int j;
                 for (j = 0; j < 12; j += 2) {
                     if (j < 6) {
-                        out[j / 2] = (short) data[j + 1] << 8;
-                    } else {
                         out[j / 2] = (short) data[j + 1] << 8 | data[j];
+                    } else {
+                        out[j / 2] = (short) data[j + 1] << 8;
                     }
                 }
                 for (j = 0; j < 3; j++) {
