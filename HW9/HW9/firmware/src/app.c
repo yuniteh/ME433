@@ -323,13 +323,7 @@ void APP_Initialize(void) {
     ANSELBbits.ANSB2 = 0;
     ANSELBbits.ANSB3 = 0;
     init_imu();
-    SPI1_init();
-    LCD_init();
     __builtin_enable_interrupts();
-
-    LCD_clearScreen(BLUE);
-    //    LCD_barX(63, 63, 20);
-    //    LCD_barY(63, 63, 20);
 
     /* Place the App state machine in its initial state. */
     appData.state = APP_STATE_INIT;
@@ -478,13 +472,17 @@ void APP_Tasks(void) {
                 i2c_read_multiple(ADD, 0x22, data, 12);
                 int j;
                 for (j = 0; j < 12; j += 2) {
-                    out[j / 2] = (short) data[j + 1] << 8;
+                    if (j < 6) {
+                        out[j / 2] = (short) data[j + 1] << 8;
+                    } else {
+                        out[j / 2] = (short) data[j + 1] << 8 | data[j];
+                    }
                 }
                 for (j = 0; j < 3; j++) {
-                    acc[j] = out[j + 3] * .00061 * 4;
+                    acc[j] = out[j + 3] * .00061;
                     gyro[j] = out[j] * .035;
                 }
-                //                len = sprintf(dataOut, "%d \r\n", i);
+
                 len = sprintf(dataOut, "%d %4.2f %4.2f %4.2f %5.2f %5.2f %5.2f\r\n", i, acc[0], acc[1], acc[2], gyro[0], gyro[1], gyro[2]);
                 i++;
                 USB_DEVICE_CDC_Write(USB_DEVICE_CDC_INDEX_0,
