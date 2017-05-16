@@ -470,8 +470,8 @@ void APP_Tasks(void) {
             if (_CP0_GET_COUNT() - startTime > (48000000 / 2 / 100)) {
                 i2c_read_multiple(ADD, 0x2c, data, 2);
                 out = (short) data[1] << 8;
-                acc = out * .00061;
-                len = sprintf(dataOut, "%d %4.2f %4.2f %4.2f\r\n", i, acc, acc, acc);
+                acc = out * .61;
+                len = sprintf(dataOut, "%d %4.2f %d %d\r\n", i, acc, acc, acc);
                 i++;
                 USB_DEVICE_CDC_Write(USB_DEVICE_CDC_INDEX_0,
                         &appData.writeTransferHandle, dataOut, len,
