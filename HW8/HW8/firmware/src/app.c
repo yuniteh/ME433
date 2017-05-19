@@ -175,7 +175,7 @@ void APP_Tasks(void) {
 
         case APP_STATE_SERVICE_TASKS:
         {
-            char data[6];
+            unsigned char data[6];
             short out[3];
             float acc[3];
             _CP0_SET_COUNT(0);
@@ -185,7 +185,7 @@ void APP_Tasks(void) {
             i2c_read_multiple(ADD, 0x28, data, 6);
             int i;
             for (i = 0; i < 6; i += 2) {
-                out[i / 2] = (short) data[i + 1] << 8;
+                out[i / 2] = (short) data[i + 1] << 8 | data[i];
             }
             for (i = 0; i < 3; i++) {
                 acc[i] = out[i]*.00061 * 4;

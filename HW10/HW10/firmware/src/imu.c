@@ -53,3 +53,4 @@ void i2c_read_multiple(unsigned char address, unsigned char reg, unsigned char *
     }
     i2c_master_stop();
 }
+

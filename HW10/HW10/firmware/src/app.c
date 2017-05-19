@@ -58,13 +58,17 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 // *****************************************************************************
 // *****************************************************************************
 
+#define BUFF_LENGTH 10
+
 uint8_t APP_MAKE_BUFFER_DMA_READY dataOut[APP_READ_BUFFER_SIZE];
 uint8_t APP_MAKE_BUFFER_DMA_READY readBuffer[APP_READ_BUFFER_SIZE];
+
 int len, startTime = 0;
 int i = 1;
-char data[2];
+short buffer[BUFF_LENGTH];
+unsigned char data[2];
 short out;
-float acc;
+float raw, maf, iir, fir;
 
 // *****************************************************************************
 /* Application Data
@@ -469,9 +473,26 @@ void APP_Tasks(void) {
 
             if (_CP0_GET_COUNT() - startTime > (48000000 / 2 / 100)) {
                 i2c_read_multiple(ADD, 0x2c, data, 2);
-                out = (short) data[1] << 8;
-                acc = out * .61;
-                len = sprintf(dataOut, "%d %4.2f %d %d\r\n", i, acc, acc, acc);
+                out = (short) data[1] << 8 | data[0];
+                raw = out * .61;
+                int j;
+
+                for (j = BUFF_LENGTH - 1; j > 0; j--) {
+                    buffer[j] = buffer[j - 1];
+                }
+                buffer[0] = out;
+
+                float sum = 0;
+                for (j = 0; j < BUFF_LENGTH; j++) {
+                    sum += buffer[j] * .61;
+                }
+                maf = sum / BUFF_LENGTH;
+                iir = 0;
+                fir = 0;
+
+                len = sprintf(dataOut, "%d %4.2f %4.2f %4.2f %4.2f\r\n", i, raw, maf, iir, fir);
+//                len = sprintf(dataOut, "%d %d %d %d %d\r\n", i, buffer[0], buffer[1], buffer[2], buffer[3]);
+
                 i++;
                 USB_DEVICE_CDC_Write(USB_DEVICE_CDC_INDEX_0,
                         &appData.writeTransferHandle, dataOut, len,

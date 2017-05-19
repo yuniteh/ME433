@@ -9,6 +9,5 @@
 void init_imu();
 unsigned char who();
 void i2c_read_multiple(unsigned char address, unsigned char register, unsigned char * data, int length);
-short temp(char * data);
 
 #endif
