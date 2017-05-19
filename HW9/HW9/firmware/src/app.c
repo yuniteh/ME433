@@ -62,7 +62,7 @@ uint8_t APP_MAKE_BUFFER_DMA_READY dataOut[APP_READ_BUFFER_SIZE];
 uint8_t APP_MAKE_BUFFER_DMA_READY readBuffer[APP_READ_BUFFER_SIZE];
 int len, startTime = 0;
 int i = 1;
-char data[12];
+unsigned char data[12];
 short out[6];
 float acc[3];
 float gyro[3];
@@ -472,11 +472,7 @@ void APP_Tasks(void) {
                 i2c_read_multiple(ADD, 0x22, data, 12);
                 int j;
                 for (j = 0; j < 12; j += 2) {
-                    if (j < 6) {
-                        out[j / 2] = (short) data[j + 1] << 8 | data[j];
-                    } else {
-                        out[j / 2] = (short) data[j + 1] << 8;
-                    }
+                    out[j / 2] = (short) (data[j + 1] << 8) | data[j];
                 }
                 for (j = 0; j < 3; j++) {
                     acc[j] = out[j + 3] * .00061;
