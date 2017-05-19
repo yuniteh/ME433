@@ -69,6 +69,8 @@ short buffer[BUFF_LENGTH];
 unsigned char data[2];
 short out;
 float raw, maf, iir, fir;
+float a = .6;
+float b = .4;
 
 // *****************************************************************************
 /* Application Data
@@ -474,10 +476,10 @@ void APP_Tasks(void) {
             if (_CP0_GET_COUNT() - startTime > (48000000 / 2 / 100)) {
                 i2c_read_multiple(ADD, 0x2c, data, 2);
                 out = (short) data[1] << 8 | data[0];
-                
+
                 // raw
                 raw = out * .61;
-                
+
                 // maf
                 int j;
                 for (j = BUFF_LENGTH - 1; j > 0; j--) {
@@ -490,10 +492,11 @@ void APP_Tasks(void) {
                     sum += buffer[j] * .61;
                 }
                 maf = sum / BUFF_LENGTH;
-                
+
                 // iir
-                
-                iir = 0;
+                iir = a * iir + b * raw;
+
+                // fir
                 fir = 0;
 
                 len = sprintf(dataOut, "%d %4.2f %4.2f %4.2f %4.2f\r\n", i, raw, maf, iir, fir);
