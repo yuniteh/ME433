@@ -58,7 +58,7 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 // *****************************************************************************
 // *****************************************************************************
 
-#define BUFF_LENGTH 10
+#define BUFF_LENGTH 6
 
 uint8_t APP_MAKE_BUFFER_DMA_READY dataOut[APP_READ_BUFFER_SIZE];
 uint8_t APP_MAKE_BUFFER_DMA_READY readBuffer[APP_READ_BUFFER_SIZE];
@@ -66,6 +66,7 @@ uint8_t APP_MAKE_BUFFER_DMA_READY readBuffer[APP_READ_BUFFER_SIZE];
 int len, startTime = 0;
 int i = 1;
 short buffer[BUFF_LENGTH];
+float weights[BUFF_LENGTH] = {.0102, .1177, .3721, .3721, .1177, .0102};
 unsigned char data[2];
 short out;
 float raw, maf, iir, fir;
@@ -478,7 +479,7 @@ void APP_Tasks(void) {
                 out = (short) data[1] << 8 | data[0];
 
                 // raw
-                raw = out * .61;
+                raw = out;// * .61;
 
                 // maf
                 int j;
@@ -489,7 +490,7 @@ void APP_Tasks(void) {
 
                 float sum = 0;
                 for (j = 0; j < BUFF_LENGTH; j++) {
-                    sum += buffer[j] * .61;
+                    sum += buffer[j];// * .61;
                 }
                 maf = sum / BUFF_LENGTH;
 
@@ -498,6 +499,9 @@ void APP_Tasks(void) {
 
                 // fir
                 fir = 0;
+                for (j = 0; j < BUFF_LENGTH; j++) {
+                    fir += buffer[j] * weights[j];
+                }
 
                 len = sprintf(dataOut, "%d %4.2f %4.2f %4.2f %4.2f\r\n", i, raw, maf, iir, fir);
 
