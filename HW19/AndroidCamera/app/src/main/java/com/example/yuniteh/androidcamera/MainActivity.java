@@ -39,6 +39,7 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
     private TextView mTextView;
     private int thresh;
     private int rnum;
+    private int COM;
     SeekBar myControl;
     SeekBar myControl2;
 
@@ -49,7 +50,7 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
         setContentView(R.layout.activity_main);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON); // keeps the screen from turning off
 
-        mTextView = (TextView) findViewById(R.id.cameraStatus);
+        // mTextView = (TextView) findViewById(R.id.cameraStatus);
         myControl = (SeekBar) findViewById(R.id.seekBar);
         myControl2 = (SeekBar) findViewById(R.id.seekBar2);
         setMyControlListener();
@@ -67,9 +68,9 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
             paint1.setColor(0xffff0000); // red
             paint1.setTextSize(24);
 
-            mTextView.setText("started camera");
+//            mTextView.setText("started camera");
         } else {
-            mTextView.setText("no camera permissions");
+//            mTextView.setText("no camera permissions");
         }
 
     }
@@ -80,6 +81,23 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 thresh = progress;
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
+        myControl2.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                rnum = progress;
             }
 
             @Override
@@ -134,49 +152,51 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
                 bmp.getPixels(pixels, 0, bmp.getWidth(), 0, startY, bmp.getWidth(), 1);
 
                 // in the row, see if there is more green than red
-                for (int i = 0; i < bmp.getWidth(); i++) {
-                    if ((green(pixels[i]) - red(pixels[i])) > thresh) {
-                        pixels[i] = rgb(0, 255, 0); // over write the pixel with pure green
-                    }
-                }
-
-//                int sum_mr = 0; // the sum of the mass times the radius
-//                int sum_m = 0; // the sum of the masses
 //                for (int i = 0; i < bmp.getWidth(); i++) {
-//                    if (((green(pixels[i]) - red(pixels[i])) > - rnum)&&((green(pixels[i]) - red(pixels[i])) < rnum)&&(green(pixels[i])  > thresh)) {
-//                        pixels[i] = rgb(1, 1, 1); // set the pixel to almost 100% black
-//
-//                        sum_m = sum_m + green(pixels[i])+red(pixels[i])+blue(pixels[i]);
-//                        sum_mr = sum_mr + (green(pixels[i])+red(pixels[i])+blue(pixels[i]))*i;
+//                    if ((green(pixels[i]) - red(pixels[i])) > thresh) {
+//                        pixels[i] = rgb(0, 255, 0); // over write the pixel with pure green
 //                    }
 //                }
-//                // only use the data if there were a few pixels identified, otherwise you might get a divide by 0 error
-//                if(sum_m>5){
-//                    COM = sum_mr / sum_m;
-//                }
-//                else{
-//                    COM = 0;
-//                }
 
+                int sum_mr = 0; // the sum of the mass times the radius
+                int sum_m = 0; // the sum of the masses
+
+                for (int i = 0; i < bmp.getWidth(); i++) {
+                    if (((green(pixels[i]) - red(pixels[i])) > - rnum)&&((green(pixels[i]) - red(pixels[i])) < rnum)&&(green(pixels[i])  > thresh)) {
+                        pixels[i] = rgb(1, 1, 1); // set the pixel to almost 100% black
+
+                        sum_m = sum_m + green(pixels[i])+red(pixels[i])+blue(pixels[i]);
+                        sum_mr = sum_mr + (green(pixels[i])+red(pixels[i])+blue(pixels[i]))*i;
+                    }
+                }
+                // only use the data if there were a few pixels identified, otherwise you might get a divide by 0 error
+                if(sum_m>5){
+                    COM = sum_mr / sum_m;
+                }
+                else{
+                    COM = 0;
+                }
+                //pixels[COM] = rgb(255, 0, 0);
+                canvas.drawCircle(COM, startY, 5, paint1); // x position, y position, diameter, color
                 // update the row
                 bmp.setPixels(pixels, 0, bmp.getWidth(), 0, startY, bmp.getWidth(), 1);
             }
         }
 
         // draw a circle at some position
-        int pos = 50;
-        canvas.drawCircle(pos, 240, 5, paint1); // x position, y position, diameter, color
+//        int pos = COM;
+//        canvas.drawCircle(pos, 240, 5, paint1); // x position, y position, diameter, color
 
         // write the pos as text
         canvas.drawText("thresh = " + thresh, 10, 200, paint1);
-        canvas.drawText("range = " + rnum, 10, 300, paint1);
+        canvas.drawText("range = " + rnum, 10, 250, paint1);
         c.drawBitmap(bmp, 0, 0, null);
         mSurfaceHolder.unlockCanvasAndPost(c);
 
         // calculate the FPS to see how fast the code is running
         long nowtime = System.currentTimeMillis();
         long diff = nowtime - prevtime;
-        mTextView.setText("FPS " + 1000 / diff);
+//        mTextView.setText("FPS " + 1000 / diff);
         prevtime = nowtime;
     }
 }
