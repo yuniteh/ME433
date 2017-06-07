@@ -320,16 +320,16 @@ void APP_Initialize(void) {
     TRISBbits.TRISB4 = 1;
     TRISAbits.TRISA4 = 0;
 
-    ANSELBbits.ANSB2 = 0;
-    ANSELBbits.ANSB3 = 0;
+    //    ANSELBbits.ANSB2 = 0;
+    //    ANSELBbits.ANSB3 = 0;
 
-    RPA0Rbits.RPA0R = 0b0101; // A0 is OC1
-    TRISAbits.TRISA1 = 0;
-    LATAbits.LATA1 = 0; // A1 is the direction pin to go along with OC1
+    RPA1Rbits.RPA1R = 0b0101; // A0 is OC1
+    TRISAbits.TRISA0 = 0;
+    LATAbits.LATA0 = 0; // A1 is the direction pin to go along with OC1
 
-    RPB2Rbits.RPB2R = 0b0101; // B2 is OC4
-    TRISBbits.TRISB3 = 0;
-    LATBbits.LATB3 = 0; // B3 is the direction pin to go along with OC4
+    RPB3Rbits.RPB3R = 0b0101; // B2 is OC4
+    TRISBbits.TRISB2 = 0;
+    LATBbits.LATB2 = 0; // B3 is the direction pin to go along with OC4
 
     T2CONbits.TCKPS = 2; // prescaler N=4 
     PR2 = 1200 - 1; // 10kHz
@@ -476,10 +476,19 @@ void APP_Tasks(void) {
                 if (*appData.readBuffer == 114) { // check if typed r
                     startTime = _CP0_GET_COUNT();
                     i = 0;
-                    LATAbits.LATA1 = 1; // direction
+                    LATAbits.LATA0 = 1; // direction
                     OC1RS = 600; // velocity, 50%
-                    LATBbits.LATB3 = 0; // direction
-                    OC4RS = 600; // velocity, 50%
+                    LATBbits.LATB2 = 0; // direction
+                    OC4RS = 300; // velocity, 50%
+                    //appData.state = APP_STATE_PRINT_IMU;
+                }
+                if (*appData.readBuffer == 115) { // check if typed r
+                    startTime = _CP0_GET_COUNT();
+                    i = 0;
+                    LATAbits.LATA0 = 0; // direction
+                    OC1RS = 600; // velocity, 50%
+                    LATBbits.LATB2 = 1; // direction
+                    OC4RS = 300; // velocity, 50%
                     //appData.state = APP_STATE_PRINT_IMU;
                 }
             }
