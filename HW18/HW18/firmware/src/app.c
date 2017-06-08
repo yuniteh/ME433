@@ -323,26 +323,26 @@ void APP_Initialize(void) {
     //    ANSELBbits.ANSB2 = 0;
     //    ANSELBbits.ANSB3 = 0;
 
-    RPA1Rbits.RPA1R = 0b0101; // A0 is OC1
+    RPA1Rbits.RPA1R = 0b0101; // A0 is OC2
     TRISAbits.TRISA0 = 0;
-    LATAbits.LATA0 = 0; // A1 is the direction pin to go along with OC1
+    LATAbits.LATA0 = 0; // A1 is the direction pin to go along with OC2
 
-    RPB3Rbits.RPB3R = 0b0101; // B2 is OC4
+    RPB3Rbits.RPB3R = 0b0101; // B3 is OC1
     TRISBbits.TRISB2 = 0;
-    LATBbits.LATB2 = 0; // B3 is the direction pin to go along with OC4
+    LATBbits.LATB2 = 0; // B2 is the direction pin to go along with OC1
 
     T2CONbits.TCKPS = 2; // prescaler N=4 
     PR2 = 1200 - 1; // 10kHz
     TMR2 = 0;
-    OC1CONbits.OCM = 0b110; // PWM mode without fault pin; other OC1CON bits are defaults
-    OC4CONbits.OCM = 0b110;
+    OC2CONbits.OCM = 0b110; // PWM mode without fault pin; other OC1CON bits are defaults
+    OC1CONbits.OCM = 0b110;
+    OC2RS = 0; // max allowed value is 1119
+    OC2R = 0; // read-only initial value
     OC1RS = 0; // max allowed value is 1119
     OC1R = 0; // read-only initial value
-    OC4RS = 0; // max allowed value is 1119
-    OC4R = 0; // read-only initial value
     T2CONbits.ON = 1;
+    OC2CONbits.ON = 1;
     OC1CONbits.ON = 1;
-    OC4CONbits.ON = 1;
     __builtin_enable_interrupts();
 
     /* Place the App state machine in its initial state. */
@@ -477,18 +477,18 @@ void APP_Tasks(void) {
                     startTime = _CP0_GET_COUNT();
                     i = 0;
                     LATAbits.LATA0 = 1; // direction
-                    OC1RS = 600; // velocity, 50%
+                    OC2RS = 600; // velocity, 50%
                     LATBbits.LATB2 = 0; // direction
-                    OC4RS = 300; // velocity, 50%
+                    OC1RS = 300; // velocity, 50%
                     //appData.state = APP_STATE_PRINT_IMU;
                 }
                 if (*appData.readBuffer == 115) { // check if typed r
                     startTime = _CP0_GET_COUNT();
                     i = 0;
                     LATAbits.LATA0 = 0; // direction
-                    OC1RS = 600; // velocity, 50%
+                    OC2RS = 600; // velocity, 50%
                     LATBbits.LATB2 = 1; // direction
-                    OC4RS = 300; // velocity, 50%
+                    OC1RS = 300; // velocity, 50%
                     //appData.state = APP_STATE_PRINT_IMU;
                 }
             }
