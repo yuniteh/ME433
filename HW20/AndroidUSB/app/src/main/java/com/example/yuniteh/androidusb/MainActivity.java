@@ -13,6 +13,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
+import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.support.v4.app.ActivityCompat;
@@ -84,20 +85,21 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
         myScrollView = (ScrollView) findViewById(R.id.ScrollView01);
         myTextView3 = (TextView) findViewById(R.id.textView03);
         button = (Button) findViewById(R.id.button1);
-        setMyControlListener();
         // see if the app has permission to use the camera
 //        ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.CAMERA}, 1);
 
 
-//        button.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                String sendString = String.valueOf(myControl.getProgress()) + '\n';
-//                try {
-//                    sPort.write(sendString.getBytes(), 10); // 10 is the timeout
-//                } catch (IOException e) { }
-//            }
-//        });
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String sendString = String.valueOf(myControl2.getProgress()/100) + '\n';
+                try {
+                    sPort.write(sendString.getBytes(), 10); // 10 is the timeout
+                } catch (IOException e) { }
+            }
+        });
+        setMyControlListener();
+
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
             mSurfaceView = (SurfaceView) findViewById(R.id.surfaceview);
             mSurfaceHolder = mSurfaceView.getHolder();
@@ -113,8 +115,6 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
         } else {
 //            myTextView2.setText("no camera permissions");
         }
-
-
 
         manager = (UsbManager) getSystemService(Context.USB_SERVICE);
 
@@ -193,35 +193,41 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
         if (c != null) {
 
             int[] pixels = new int[bmp.getWidth()]; // pixels[] is the RGBA data
-            //int startY = 200; // which row in the bitmap to analyze to read
-            for (int startY = 0; startY < 960; startY += 25) {
-                bmp.getPixels(pixels, 0, bmp.getWidth(), 0, startY, bmp.getWidth(), 1);
+            int startY = 400; // which row in the bitmap to analyze to read
+//            for (int startY = 0; startY < 960; startY += 25) {
+            bmp.getPixels(pixels, 0, bmp.getWidth(), 0, startY, bmp.getWidth(), 1);
 
 
-                int sum_mr = 0; // the sum of the mass times the radius
-                int sum_m = 0; // the sum of the masses
+            int sum_mr = 0; // the sum of the mass times the radius
+            int sum_m = 0; // the sum of the masses
 
-                for (int i = 0; i < bmp.getWidth(); i++) {
-                    if (((green(pixels[i]) - red(pixels[i])) > - rnum)&&((green(pixels[i]) - red(pixels[i])) < rnum)&&(green(pixels[i])  > thresh)) {
+            for (int i = 0; i < bmp.getWidth(); i++) {
+                if (((green(pixels[i]) - red(pixels[i])) > - rnum)&&((green(pixels[i]) - red(pixels[i])) < rnum)&&(green(pixels[i])  > thresh)) {
                         pixels[i] = rgb(1, 1, 1); // set the pixel to almost 100% black
 
-                        sum_m = sum_m + green(pixels[i])+red(pixels[i])+blue(pixels[i]);
-                        sum_mr = sum_mr + (green(pixels[i])+red(pixels[i])+blue(pixels[i]))*i;
+                        sum_m = sum_m + green(pixels[i]) + red(pixels[i]) + blue(pixels[i]);
+                        sum_mr = sum_mr + (green(pixels[i]) + red(pixels[i]) + blue(pixels[i])) * i;
                     }
-                }
-                // only use the data if there were a few pixels identified, otherwise you might get a divide by 0 error
-                if(sum_m>5){
-                    COM = sum_mr / sum_m;
-                }
-                else{
-                    COM = 0;
-                }
-                //pixels[COM] = rgb(255, 0, 0);
-                canvas.drawCircle(COM, startY, 5, paint1); // x position, y position, diameter, color
-                // update the row
-                bmp.setPixels(pixels, 0, bmp.getWidth(), 0, startY, bmp.getWidth(), 1);
             }
+            // only use the data if there were a few pixels identified, otherwise you might get a divide by 0 error
+            if(sum_m>5){
+                COM = sum_mr / sum_m;
+            }
+            else{
+                COM = 0;
+            }
+            String sendString = String.valueOf(COM) + '\n';
+            try {
+                sPort.write(sendString.getBytes(), 10); // 10 is the timeout
+            } catch (IOException e) { }
+
+            myTextView2.setText("com = " + COM);
+            //pixels[COM] = rgb(255, 0, 0);
+            canvas.drawCircle(COM, startY, 5, paint1); // x position, y position, diameter, color
+            // update the row
+            bmp.setPixels(pixels, 0, bmp.getWidth(), 0, startY, bmp.getWidth(), 1);
         }
+//        }
 
         // write the pos as text
         canvas.drawText("thresh = " + thresh, 10, 200, paint1);
@@ -339,7 +345,7 @@ public class MainActivity extends Activity implements TextureView.SurfaceTexture
         String rxString = null;
         try {
             rxString = new String(data, "UTF-8"); // put the data you got into a string
-            myTextView3.append(rxString);
+            myTextView3.setText(rxString);
             myScrollView.fullScroll(View.FOCUS_DOWN);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();

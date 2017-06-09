@@ -46,6 +46,11 @@
             android:layout_height="wrap_content"
             />
 
+        <TextureView
+            android:id="@+id/textureview"
+            android:layout_width="1280px"
+            android:layout_height="960px" />
+
         <ScrollView
             android:id="@+id/ScrollView01"
             android:layout_width="wrap_content"
@@ -60,10 +65,6 @@
                 />
         </ScrollView>
 
-        <TextureView
-            android:id="@+id/textureview"
-            android:layout_width="1280px"
-            android:layout_height="960px" />
     </LinearLayout>
     </ScrollView>
 
