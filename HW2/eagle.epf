@@ -350,7 +350,7 @@ UsedLibrary="pic_circuit.lbr"
 
 [Win_1]
 Type="Control Panel"
-Loc="1759 -207 2958 392"
+Loc="342 42 1541 641"
 State=2
 Number=0
 
